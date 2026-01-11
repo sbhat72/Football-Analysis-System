@@ -16,6 +16,7 @@ class Tracker:
        self.tracker = sv.ByteTrack()
 
 
+
     def detect_frames(self,frames):
        batch_size = 20
        detections = []
@@ -106,7 +107,30 @@ class Tracker:
                     color=color,
                     thickness=2,
                     lineType=cv2.LINE_4)
-        return frame
+        
+        rectangle_width = 25
+        rectangle_height = 28
+        x1_rect,y1_rect = x_center - rectangle_width//2, y2 - rectangle_height//2
+        x2_rect,y2_rect = x_center + rectangle_height//2, y2 + rectangle_height//2
+
+        if track_id is not None:
+            cv2.rectangle(
+                frame,
+                (int(x1_rect),int(y1_rect)),
+                (int(x2_rect),int(y2_rect)),
+                color,
+                cv2.FILLED
+            )
+            
+        
+            cv2.putText(frame,
+                f"{track_id}",
+                (x1_rect + 4, y2_rect - 4),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0,0,0),
+                2)
+            return frame
 
 
     def draw_annotations(self,video_frames,tracks):
@@ -121,5 +145,11 @@ class Tracker:
             #Draw Players 
             for track_id,player in player_dict.items():
                 frame = self.draw_ellipse(frame, player["bbox"], (0,0,255), track_id)
+            
+
+
+            for _, referee in referee_dict.items():
+                frame = self.draw_ellipse(frame,referee["bbox"], (0,255,255))
+            
             output_video_frames.append(frame)
         return output_video_frames
